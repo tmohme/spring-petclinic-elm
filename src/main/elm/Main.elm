@@ -6,20 +6,18 @@ import Html.Events exposing (onClick)
 
 
 main =
-  beginnerProgram { model = 0, view = view, update = update }
-
-
-view model =
-  div []
-    [ button [ onClick Decrement ] [ text "-" ]
-    , div [] [ text (toString model) ]
-    , button [ onClick Increment ] [ text "+" ]
-    ]
+  beginnerProgram { model = model, view = view, update = update }
 
 
 type Msg = Increment | Decrement
 
+type alias Model = Int
 
+model : Model
+model =
+    0
+
+update : Msg -> Model -> Model
 update msg model =
   case msg of
     Increment ->
@@ -27,4 +25,13 @@ update msg model =
 
     Decrement ->
       model - 1
+
+
+view : Model -> Html.Html Msg
+view model =
+  div []
+    [ button [ onClick Decrement ] [ text "-" ]
+    , div [] [ text (toString model) ]
+    , button [ onClick Increment ] [ text "+" ]
+    ]
 
