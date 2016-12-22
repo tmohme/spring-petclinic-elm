@@ -1,43 +1,94 @@
--- Read more about this program in the official Elm guide:
--- https://guide.elm-lang.org/architecture/user_input/buttons.html
+module Main exposing (..)
 
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (onClick)
+import Owners exposing (..)
 
 
+
+-- APP
+
+main : Program Never AppModel Msg
 main =
-  beginnerProgram { model = model, view = view, update = update }
+  program
+      { init = init
+      , view = view
+      , update = update
+      , subscriptions = subscriptions
+      }
 
 
-type NavMsg = ToHome | ToOwners | ToVets | ToError
+
+-- MODEL
+
 type Page = Home | Owners | Vets | Error
 
-type alias Model =
+type alias AppModel =
     { page : Page
+    , ownersModel : Owners.Model
     }
 
-
-model : Model
-model =
+initialModel : AppModel
+initialModel =
     { page = Home
+    , ownersModel = Owners.initialModel
     }
 
 
-update : NavMsg -> Model -> Model
+init : (AppModel, Cmd Msg)
+init =
+    (initialModel, Cmd.none)
+
+
+
+-- MESSAGES
+
+type NavMsg
+    = ToHome
+    | ToOwners
+    | ToVets
+    | ToError
+
+type Msg
+    = MainMsg NavMsg
+    | Owners.Msg
+
+
+
+-- SUBSCRIPTIONS
+
+
+subscriptions : AppModel -> Sub Msg
+subscriptions model =
+    Sub.none
+
+
+
+-- UPDATE
+
+
+update : Msg -> AppModel -> ( AppModel, Cmd Msg )
 update msg model =
     case msg of
+        MainMsg navMsg -> updateNavigation navMsg model
+        Owners.Msg -> ( model, Cmd.none)
+
+
+updateNavigation : NavMsg -> AppModel -> ( AppModel, Cmd Msg )
+updateNavigation navMsg model =
+    case navMsg of
         ToHome ->
-            {model | page = Home}
+            ({model | page = Home}, Cmd.none)
         ToOwners ->
-            {model | page = Owners}
+            ({model | page = Owners}, Cmd.none)
         ToVets ->
-            {model | page = Vets}
+            ({model | page = Vets}, Cmd.none)
         ToError ->
-            {model | page = Error}
+            ({model | page = Error}, Cmd.none)
 
 
-view : Model -> Html NavMsg
+view : AppModel -> Html Msg
 view model =
 
   let
@@ -85,7 +136,7 @@ view model =
             ]
         ]
 
-menuItem : NavMsg -> Page -> Page -> String -> String -> String -> String -> Html NavMsg
+menuItem : NavMsg -> Page -> Page -> String -> String -> String -> String -> Html Msg
 menuItem msg activePage currentPage path title_ glyph text_ =
     li [classList
             [("active", currentPage == activePage)]
@@ -94,13 +145,13 @@ menuItem msg activePage currentPage path title_ glyph text_ =
             [ span [class ("glyphicon  glyphicon-" ++ glyph), attribute "aria-hidden" "true"] []
             , span [][text text_]
             ]
-        , button [onClick msg]
+        , button [onClick (MainMsg msg)]
             [ span [class ("glyphicon  glyphicon-" ++ glyph), attribute "aria-hidden" "true"] []
             , span [][text ("button-" ++ text_)]
             ]
         ]
 
-welcomeView : Page -> String -> String -> Html NavMsg
+welcomeView : Page -> String -> String -> Html Msg
 welcomeView page welcome imageRoot =
     div []
         [ h2 [] [text (welcome ++ " on page " ++ (toString page))]
