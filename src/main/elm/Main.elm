@@ -29,6 +29,7 @@ view model =
   let
     rootUrl = "file:///Users/thomas/Documents/SWDevelopment/elm/spring-petclinic-elm"
     classesUrl = rootUrl ++ "/target/classes"
+    imageRoot = classesUrl ++ "/static/resources/images"
   in
     body []
         [ nav [class "navbar navbar-default"]
@@ -56,13 +57,13 @@ view model =
 
         , div [class "container-fluid"]
             [ div [class "container xd-container"]
-                [ text "here comes the content"]
+                [ welcomeView "Welcome" imageRoot]
             , br [][]
             , br [][]
             , div [class "container"]
                 [ div [class "row"]
                     [ div [class "col-12 text-center"]
-                        [ img [src (classesUrl ++ "/static/resources/images/spring-pivotal-logo.png"),alt "Sponsored by Pivotal"] []
+                        [ img [src (imageRoot ++ "/spring-pivotal-logo.png"),alt "Sponsored by Pivotal"] []
                         ]
                     ]
                 ]
@@ -75,5 +76,16 @@ menuItem path active title_ glyph text_ =
         [ a [href path, title title_]
             [ span [class ("glyphicon  glyphicon-" ++ glyph), attribute "aria-hidden" "true"] []
             , span [][text text_]
+            ]
+        ]
+
+welcomeView : String -> String -> Html Msg
+welcomeView welcome imageRoot =
+    div []
+        [ h2 [] [text welcome]
+        , div [class "row"]
+            [ div [class "col-md-12"]
+                [ img [class "img-responsive", src (imageRoot ++ "/pets.png")] []
+                ]
             ]
         ]
