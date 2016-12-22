@@ -28,25 +28,42 @@ view model =
 
   let
     rootUrl = "file:///Users/thomas/Documents/SWDevelopment/elm/spring-petclinic-elm"
+    classesUrl = rootUrl ++ "/target/classes"
   in
-      nav [class "navbar navbar-default"]
-        [ div [class "container"]
-            [ div [class "navbar-header"]
-                [ a [class "navbar-brand", (href (rootUrl ++ "index.html"))][]
-                , button [type_ "button", class "navbar-toggle", attribute "data-toggle" "collapse",  attribute "data-target" "#main-navbar"]
-                    [ span [class "sr-only"][text "Toggle navigation"]
-                    , span [class "icon-bar"] []
-                    , span [class "icon-bar"] []
-                    , span [class "icon-bar"] []
+    body []
+        [ nav [class "navbar navbar-default"]
+            [ div [class "container"]
+                [ div [class "navbar-header"]
+                    [ a [class "navbar-brand", (href (rootUrl ++ "index.html"))][]
+                    , button [type_ "button", class "navbar-toggle", attribute "data-toggle" "collapse",  attribute "data-target" "#main-navbar"]
+                        [ span [class "sr-only"][text "Toggle navigation"]
+                        , span [class "icon-bar"] []
+                        , span [class "icon-bar"] []
+                        , span [class "icon-bar"] []
+                        ]
+                    ]
+
+                , div [class "navbar-collapse collapse", id "main-navbar"]
+                    [ ul [class "nav navbar-nav navbar-right"]
+                        [ menuItem (rootUrl ++ "/") "home" "home page" "home" "Home"
+                        , menuItem (rootUrl ++ "/owners/find") "owners" "find owners" "search" "Find owners"
+                        , menuItem (rootUrl ++ "/vets.html") "vets" "veterinarians" "th-list" "Veterinarians"
+                        , menuItem (rootUrl ++ "/oups") "error" "trigger a RuntimeError to see how it is handled" "warning-sign" "Error"
+                        ]
                     ]
                 ]
+            ]
 
-            , div [class "navbar-collapse collapse", id "main-navbar"]
-                [ ul [class "nav navbar-nav navbar-right"]
-                    [ menuItem (rootUrl ++ "/") "home" "home page" "home" "Home"
-                    , menuItem (rootUrl ++ "/owners/find") "owners" "find owners" "search" "Find owners"
-                    , menuItem (rootUrl ++ "/vets.html") "vets" "veterinarians" "th-list" "Veterinarians"
-                    , menuItem (rootUrl ++ "/oups") "error" "trigger a RuntimeError to see how it is handled" "warning-sign" "Error"
+        , div [class "container-fluid"]
+            [ div [class "container xd-container"]
+                [ text "here comes the content"]
+            , br [][]
+            , br [][]
+            , div [class "container"]
+                [ div [class "row"]
+                    [ div [class "col-12 text-center"]
+                        [ img [src (classesUrl ++ "/static/resources/images/spring-pivotal-logo.png"),alt "Sponsored by Pivotal"] []
+                        ]
                     ]
                 ]
             ]
@@ -60,4 +77,3 @@ menuItem path active title_ glyph text_ =
             , span [][text text_]
             ]
         ]
-
