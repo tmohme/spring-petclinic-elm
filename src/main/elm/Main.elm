@@ -1,7 +1,8 @@
 -- Read more about this program in the official Elm guide:
 -- https://guide.elm-lang.org/architecture/user_input/buttons.html
 
-import Html exposing (beginnerProgram, div, button, text)
+import Html exposing (..)
+import Html.Attributes exposing (..)
 import Html.Events exposing (onClick)
 
 
@@ -19,19 +20,44 @@ model =
 
 update : Msg -> Model -> Model
 update msg model =
-  case msg of
-    Increment ->
-      model + 1
-
-    Decrement ->
-      model - 1
+    model
 
 
-view : Model -> Html.Html Msg
+view : Model -> Html Msg
 view model =
-  div []
-    [ button [ onClick Decrement ] [ text "-" ]
-    , div [] [ text (toString model) ]
-    , button [ onClick Increment ] [ text "+" ]
-    ]
+
+  let
+    rootUrl = "file:///Users/thomas/Documents/SWDevelopment/elm/spring-petclinic-elm"
+  in
+      nav [class "navbar navbar-default"]
+        [ div [class "container"]
+            [ div [class "navbar-header"]
+                [ a [class "navbar-brand", (href (rootUrl ++ "index.html"))][]
+                , button [type_ "button", class "navbar-toggle", attribute "data-toggle" "collapse",  attribute "data-target" "#main-navbar"]
+                    [ span [class "sr-only"][text "Toggle navigation"]
+                    , span [class "icon-bar"] []
+                    , span [class "icon-bar"] []
+                    , span [class "icon-bar"] []
+                    ]
+                ]
+
+            , div [class "navbar-collapse collapse", id "main-navbar"]
+                [ ul [class "nav navbar-nav navbar-right"]
+                    [ menuItem (rootUrl ++ "/") "home" "home page" "home" "Home"
+                    , menuItem (rootUrl ++ "/owners/find") "owners" "find owners" "search" "Find owners"
+                    , menuItem (rootUrl ++ "/vets.html") "vets" "veterinarians" "th-list" "Veterinarians"
+                    , menuItem (rootUrl ++ "/oups") "error" "trigger a RuntimeError to see how it is handled" "warning-sign" "Error"
+                    ]
+                ]
+            ]
+        ]
+
+menuItem : String -> String -> String -> String -> String -> Html Msg
+menuItem path active title_ glyph text_ =
+    li [class "active"]
+        [ a [href path, title title_]
+            [ span [class ("glyphicon  glyphicon-" ++ glyph), attribute "aria-hidden" "true"] []
+            , span [][text text_]
+            ]
+        ]
 
