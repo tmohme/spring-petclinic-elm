@@ -10,8 +10,8 @@ main =
   beginnerProgram { model = model, view = view, update = update }
 
 
-type NavMsg = ToHome | ToOwners | ToVets | ToOups
-type Page = Home | Owners | Vets | Oups
+type NavMsg = ToHome | ToOwners | ToVets | ToError
+type Page = Home | Owners | Vets | Error
 
 type alias Model =
     { page : Page
@@ -33,8 +33,8 @@ update msg model =
             {model | page = Owners}
         ToVets ->
             {model | page = Vets}
-        ToOups ->
-            {model | page = Oups}
+        ToError ->
+            {model | page = Error}
 
 
 view : Model -> Html NavMsg
@@ -44,6 +44,7 @@ view model =
     rootUrl = "file:///Users/thomas/Documents/SWDevelopment/elm/spring-petclinic-elm"
     classesUrl = rootUrl ++ "/target/classes"
     imageRoot = classesUrl ++ "/static/resources/images"
+    page = model.page
   in
     body []
         [ nav [class "navbar navbar-default"]
@@ -60,10 +61,10 @@ view model =
 
                 , div [class "navbar-collapse collapse", id "main-navbar"]
                     [ ul [class "nav navbar-nav navbar-right"]
-                        [ menuItem ToHome (rootUrl ++ "/") "home" "home page" "home" "Home"
-                        , menuItem ToOwners (rootUrl ++ "/owners/find") "owners" "find owners" "search" "Find owners"
-                        , menuItem ToVets (rootUrl ++ "/vets.html") "vets" "veterinarians" "th-list" "Veterinarians"
-                        , menuItem ToOups (rootUrl ++ "/oups") "error" "trigger a RuntimeError to see how it is handled" "warning-sign" "Error"
+                        [ menuItem ToHome Home page (rootUrl ++ "/") "home page" "home" "Home"
+                        , menuItem ToOwners Owners page (rootUrl ++ "/owners/find") "find owners" "search" "Find owners"
+                        , menuItem ToVets Vets page (rootUrl ++ "/vets.html") "veterinarians" "th-list" "Veterinarians"
+                        , menuItem ToError Error page (rootUrl ++ "/oups") "trigger a RuntimeError to see how it is handled" "warning-sign" "Error"
                         ]
                     ]
                 ]
@@ -84,9 +85,11 @@ view model =
             ]
         ]
 
-menuItem : NavMsg -> String -> String -> String -> String -> String -> Html NavMsg
-menuItem msg path active title_ glyph text_ =
-    li [class "active"]
+menuItem : NavMsg -> Page -> Page -> String -> String -> String -> String -> Html NavMsg
+menuItem msg activePage currentPage path title_ glyph text_ =
+    li [classList
+            [("active", currentPage == activePage)]
+        ]
         [ a [href path, title title_]
             [ span [class ("glyphicon  glyphicon-" ++ glyph), attribute "aria-hidden" "true"] []
             , span [][text text_]
