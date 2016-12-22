@@ -10,20 +10,34 @@ main =
   beginnerProgram { model = model, view = view, update = update }
 
 
-type Msg = Increment | Decrement
+type NavMsg = ToHome | ToOwners | ToVets | ToOups
+type Page = Home | Owners | Vets | Oups
 
-type alias Model = Int
+type alias Model =
+    { page : Page
+    }
+
 
 model : Model
 model =
-    0
+    { page = Home
+    }
 
-update : Msg -> Model -> Model
+
+update : NavMsg -> Model -> Model
 update msg model =
-    model
+    case msg of
+        ToHome ->
+            {model | page = Home}
+        ToOwners ->
+            {model | page = Owners}
+        ToVets ->
+            {model | page = Vets}
+        ToOups ->
+            {model | page = Oups}
 
 
-view : Model -> Html Msg
+view : Model -> Html NavMsg
 view model =
 
   let
@@ -46,10 +60,10 @@ view model =
 
                 , div [class "navbar-collapse collapse", id "main-navbar"]
                     [ ul [class "nav navbar-nav navbar-right"]
-                        [ menuItem (rootUrl ++ "/") "home" "home page" "home" "Home"
-                        , menuItem (rootUrl ++ "/owners/find") "owners" "find owners" "search" "Find owners"
-                        , menuItem (rootUrl ++ "/vets.html") "vets" "veterinarians" "th-list" "Veterinarians"
-                        , menuItem (rootUrl ++ "/oups") "error" "trigger a RuntimeError to see how it is handled" "warning-sign" "Error"
+                        [ menuItem ToHome (rootUrl ++ "/") "home" "home page" "home" "Home"
+                        , menuItem ToOwners (rootUrl ++ "/owners/find") "owners" "find owners" "search" "Find owners"
+                        , menuItem ToVets (rootUrl ++ "/vets.html") "vets" "veterinarians" "th-list" "Veterinarians"
+                        , menuItem ToOups (rootUrl ++ "/oups") "error" "trigger a RuntimeError to see how it is handled" "warning-sign" "Error"
                         ]
                     ]
                 ]
@@ -57,7 +71,7 @@ view model =
 
         , div [class "container-fluid"]
             [ div [class "container xd-container"]
-                [ welcomeView "Welcome" imageRoot]
+                [ welcomeView model.page "Welcome" imageRoot]
             , br [][]
             , br [][]
             , div [class "container"]
@@ -70,19 +84,23 @@ view model =
             ]
         ]
 
-menuItem : String -> String -> String -> String -> String -> Html Msg
-menuItem path active title_ glyph text_ =
+menuItem : NavMsg -> String -> String -> String -> String -> String -> Html NavMsg
+menuItem msg path active title_ glyph text_ =
     li [class "active"]
         [ a [href path, title title_]
             [ span [class ("glyphicon  glyphicon-" ++ glyph), attribute "aria-hidden" "true"] []
             , span [][text text_]
             ]
+        , button [onClick msg]
+            [ span [class ("glyphicon  glyphicon-" ++ glyph), attribute "aria-hidden" "true"] []
+            , span [][text ("button-" ++ text_)]
+            ]
         ]
 
-welcomeView : String -> String -> Html Msg
-welcomeView welcome imageRoot =
+welcomeView : Page -> String -> String -> Html NavMsg
+welcomeView page welcome imageRoot =
     div []
-        [ h2 [] [text welcome]
+        [ h2 [] [text (welcome ++ " on page " ++ (toString page))]
         , div [class "row"]
             [ div [class "col-md-12"]
                 [ img [class "img-responsive", src (imageRoot ++ "/pets.png")] []
