@@ -25,13 +25,15 @@ main =
 type Page = Home | Owners | Vets | Error
 
 type alias AppModel =
-    { page : Page
+    { rootUrl : String
+    , page : Page
     , ownersModel : Owners.Model
     }
 
 initialModel : AppModel
 initialModel =
-    { page = Home
+    { rootUrl = "file:///Users/thomas/Documents/SWDevelopment/elm/spring-petclinic-elm"
+    , page = Home
     , ownersModel = Owners.initialModel
     }
 
@@ -52,7 +54,7 @@ type NavMsg
 
 type Msg
     = MainMsg NavMsg
-    | Owners.Msg
+    | OwnersMsg Owners.Msg
 
 
 
@@ -72,7 +74,12 @@ update : Msg -> AppModel -> ( AppModel, Cmd Msg )
 update msg model =
     case msg of
         MainMsg navMsg -> updateNavigation navMsg model
-        Owners.Msg -> ( model, Cmd.none)
+        OwnersMsg ownersMsg ->
+            let
+                ( updatedOwnersModel, ownersCmd ) = Owners.update ownersMsg model.ownersModel
+            in
+                ( { model | ownersModel = updatedOwnersModel }, Cmd.map OwnersMsg ownersCmd )
+
 
 
 updateNavigation : NavMsg -> AppModel -> ( AppModel, Cmd Msg )
@@ -92,8 +99,8 @@ view : AppModel -> Html Msg
 view model =
 
   let
-    rootUrl = "file:///Users/thomas/Documents/SWDevelopment/elm/spring-petclinic-elm"
-    classesUrl = rootUrl ++ "/target/classes"
+    rootUrl = model.rootUrl
+    classesUrl = model.rootUrl ++ "/target/classes"
     imageRoot = classesUrl ++ "/static/resources/images"
     page = model.page
   in
@@ -123,7 +130,7 @@ view model =
 
         , div [class "container-fluid"]
             [ div [class "container xd-container"]
-                [ welcomeView model.page "Welcome" imageRoot]
+                [ contentView model imageRoot ]
             , br [][]
             , br [][]
             , div [class "container"]
@@ -150,6 +157,15 @@ menuItem msg activePage currentPage path title_ glyph text_ =
             , span [][text ("button-" ++ text_)]
             ]
         ]
+
+
+contentView : AppModel -> String -> Html Msg
+contentView model imageRoot =
+    case model.page of
+        Owners -> Html.map OwnersMsg (Owners.view model.ownersModel)
+        _ -> welcomeView model.page "Welcome" imageRoot
+
+
 
 welcomeView : Page -> String -> String -> Html Msg
 welcomeView page welcome imageRoot =
