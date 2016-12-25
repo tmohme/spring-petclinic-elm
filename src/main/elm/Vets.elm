@@ -1,25 +1,36 @@
 module Vets exposing(..)
 
+import Debug exposing (..)
 import Html exposing (..)
-import Html.Attributes exposing (..)
+import Html.Attributes exposing (class)
 import Html.Events exposing (onClick, onInput)
+import Http
+import Time
+
+import HttpBuilder exposing (..)
+import Json.Decode exposing (..)
+import Json.Decode.Pipeline exposing (decode, required, optional, hardcoded)
+
 
 -- MODEL
 
-type Msg = ViewAsJson
+type Msg = Loaded (Result Http.Error Vets)
+         | ViewAsJson
          | ViewAsXml
 
 type Columns = Name
              | Specialties
 
+type alias Vets = List Vet
+
 type alias Model =
-    { vets : List Vet
+    { vets : Vets
     }
 
 
 initialModel : Model
 initialModel =
-    { vets = vets
+    { vets = []
     }
 
 
@@ -31,6 +42,8 @@ update message model =
     case message of
         ViewAsJson -> ( model, Cmd.none )
         ViewAsXml -> ( model, Cmd.none )
+        Loaded (Err error) -> log (toString error) ( model, Cmd.none )
+        Loaded (Ok loadedVets) -> ( Model loadedVets, Cmd.none )
 
 
 
@@ -69,11 +82,12 @@ viewVet vet =
         , td [] [ text (viewSpecialties vet.specialties) ]
         ]
 
-viewSpecialties : List String -> String
-viewSpecialties specs =
-    case specs of
+viewSpecialties : List Specialty -> String
+viewSpecialties specialties =
+    case specialties of
       []     -> "none"
-      hd::tl -> specs
+      hd::tl -> specialties
+                |> List.map .name
                 |> List.intersperse " "
                 |> List.foldr (++) ""
 
@@ -81,12 +95,19 @@ viewSpecialties specs =
 -- Vets
 
 type alias Vet =
-    { firstName : String
+    { id : Int
+    , firstName : String
     , lastName : String
-    , specialties: List String
+    , specialties: List Specialty
     }
 
-vets : List Vet
+type alias Specialty =
+    { id: Int
+    , name : String
+    }
+
+{-
+vets : Vets
 vets =
     [ Vet "James" "Carter" []
     , Vet "Helen" "Leary" ["radiology"]
@@ -95,3 +116,40 @@ vets =
     , Vet "Henry" "Stevens" ["radiology"]
     , Vet "Sharon" "Jenkins" []
     ]
+-}
+
+
+-- HTTP
+
+loadVets : Cmd Msg
+loadVets =
+    HttpBuilder.get "http://localhost:8080/vets.json"
+        |> withHeader "Accept" "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8"
+        |> withTimeout (10 * Time.second)
+        |> withExpect (Http.expectJson vetsDecoder)
+        |> send handleRequestComplete
+
+vetsDecoder : Decoder Vets
+vetsDecoder = field "vetList" (list vetDecoder)
+
+vetDecoder : Decoder Vet
+vetDecoder =
+  decode Vet
+    |> required "id" int
+    |> required "firstName" string
+    |> required "lastName" string
+    |> required "specialties" specialtiesDecoder
+
+specialtiesDecoder : Decoder (List Specialty)
+specialtiesDecoder = list specialityDecoder
+
+specialityDecoder : Decoder Specialty
+specialityDecoder =
+    decode Specialty
+        |> required "id" int
+        |> required "name" string
+
+
+handleRequestComplete : Result Http.Error (List Vet) -> Msg
+handleRequestComplete result =
+    Loaded result

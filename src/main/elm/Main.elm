@@ -99,10 +99,13 @@ updateNavigation navMsg model =
         ToOwners ->
             ({model | page = Owners}, Cmd.none)
         ToVets ->
-            ({model | page = Vets}, Cmd.none)
+            ({model | page = Vets}, Cmd.map VetsMsg Vets.loadVets)
         ToError ->
             ({model | page = Error}, Cmd.none)
 
+
+
+-- VIEW
 
 view : AppModel -> Html Msg
 view model =
