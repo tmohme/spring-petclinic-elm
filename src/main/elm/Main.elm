@@ -4,6 +4,7 @@ import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (onClick)
 import Owners exposing (..)
+import Vets exposing(..)
 
 
 
@@ -28,6 +29,7 @@ type alias AppModel =
     { rootUrl : String
     , page : Page
     , ownersModel : Owners.Model
+    , vetsModel : Vets.Model
     }
 
 initialModel : AppModel
@@ -35,6 +37,7 @@ initialModel =
     { rootUrl = "file:///Users/thomas/Documents/SWDevelopment/elm/spring-petclinic-elm"
     , page = Home
     , ownersModel = Owners.initialModel
+    , vetsModel = Vets.initialModel
     }
 
 
@@ -55,6 +58,7 @@ type NavMsg
 type Msg
     = MainMsg NavMsg
     | OwnersMsg Owners.Msg
+    | VetsMsg Vets.Msg
 
 
 
@@ -79,6 +83,11 @@ update msg model =
                 ( updatedOwnersModel, ownersCmd ) = Owners.update ownersMsg model.ownersModel
             in
                 ( { model | ownersModel = updatedOwnersModel }, Cmd.map OwnersMsg ownersCmd )
+        VetsMsg vetsMsg ->
+            let
+                ( updatedVetsModel, vetsCmd ) = Vets.update vetsMsg model.vetsModel
+            in
+                ( { model | vetsModel = updatedVetsModel }, Cmd.map VetsMsg vetsCmd )
 
 
 
@@ -163,6 +172,7 @@ contentView : AppModel -> String -> Html Msg
 contentView model imageRoot =
     case model.page of
         Owners -> Html.map OwnersMsg (Owners.view model.ownersModel)
+        Vets -> Html.map VetsMsg (Vets.view model.vetsModel)
         _ -> welcomeView model.page "Welcome" imageRoot
 
 
