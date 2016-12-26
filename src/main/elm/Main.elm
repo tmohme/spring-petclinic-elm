@@ -160,13 +160,9 @@ menuItem msg activePage currentPage path title_ glyph text_ =
     li [classList
             [("active", currentPage == activePage)]
         ]
-        [ a [href path, title title_]
+        [ a [title title_, onClick (MainMsg msg)]
             [ span [class ("glyphicon  glyphicon-" ++ glyph), attribute "aria-hidden" "true"] []
             , span [][text text_]
-            ]
-        , button [onClick (MainMsg msg)]
-            [ span [class ("glyphicon  glyphicon-" ++ glyph), attribute "aria-hidden" "true"] []
-            , span [][text ("button-" ++ text_)]
             ]
         ]
 
