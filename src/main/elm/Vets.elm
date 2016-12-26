@@ -112,7 +112,6 @@ type alias Specialty =
 loadVets : Cmd Msg
 loadVets =
     HttpBuilder.get "http://localhost:8080/vets.json"
-        |> withHeader "Accept" "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8"
         |> withTimeout (10 * Time.second)
         |> withExpect (Http.expectJson vetsDecoder)
         |> send (\result -> Loaded result)
