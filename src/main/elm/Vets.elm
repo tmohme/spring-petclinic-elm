@@ -42,7 +42,7 @@ update message model =
     case message of
         ViewAsJson -> ( model, Cmd.none )
         ViewAsXml -> ( model, Cmd.none )
-        Loaded (Err error) -> log (toString error) ( model, Cmd.none )
+        Loaded (Err error) -> ( model, Cmd.none )
         Loaded (Ok loadedVets) -> ( Model loadedVets, Cmd.none )
 
 
@@ -72,7 +72,7 @@ view model =
             ]
         ]
 
-viewVets : List Vet -> List (Html Msg)
+viewVets : Vets -> List (Html Msg)
 viewVets vets = List.map viewVet vets
 
 viewVet : Vet -> Html Msg
@@ -106,18 +106,6 @@ type alias Specialty =
     , name : String
     }
 
-{-
-vets : Vets
-vets =
-    [ Vet "James" "Carter" []
-    , Vet "Helen" "Leary" ["radiology"]
-    , Vet "Linda" "Douglas" ["dentistry", "surgery"]
-    , Vet "Rafael" "Ortega" ["surgery"]
-    , Vet "Henry" "Stevens" ["radiology"]
-    , Vet "Sharon" "Jenkins" []
-    ]
--}
-
 
 -- HTTP
 
@@ -127,7 +115,7 @@ loadVets =
         |> withHeader "Accept" "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8"
         |> withTimeout (10 * Time.second)
         |> withExpect (Http.expectJson vetsDecoder)
-        |> send handleRequestComplete
+        |> send (\result -> Loaded result)
 
 vetsDecoder : Decoder Vets
 vetsDecoder = field "vetList" (list vetDecoder)
@@ -148,8 +136,3 @@ specialityDecoder =
     decode Specialty
         |> required "id" int
         |> required "name" string
-
-
-handleRequestComplete : Result Http.Error (List Vet) -> Msg
-handleRequestComplete result =
-    Loaded result
