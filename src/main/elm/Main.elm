@@ -97,7 +97,11 @@ updateNavigation navMsg model =
         ToHome ->
             ({model | page = Home}, Cmd.none)
         ToOwners ->
-            ({model | page = Owners}, Cmd.none)
+            let
+                ( updatedOwnersModel, ownersCmd ) = Owners.update Owners.NavigateTo model.ownersModel
+            in
+                ({model | page = Owners, ownersModel = updatedOwnersModel}
+                , Cmd.map OwnersMsg ownersCmd)
         ToVets ->
             ({model | page = Vets}, Cmd.map VetsMsg Vets.loadVets)
         ToError ->
