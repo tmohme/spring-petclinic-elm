@@ -4,6 +4,7 @@ import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (onClick)
 import Owners exposing (..)
+import Navigation exposing (program)
 import Vets exposing(..)
 
 
@@ -12,18 +13,26 @@ import Vets exposing(..)
 
 main : Program Never AppModel Msg
 main =
-  program
+  Navigation.program locationToMsg
       { init = init
       , view = view
       , update = update
       , subscriptions = subscriptions
       }
 
+locationToMsg : Navigation.Location -> Msg
+locationToMsg location =
+    MainMsg ToHome
+
 
 
 -- MODEL
 
-type Page = Home | Owners | Vets | Error
+type Page
+    = Home
+    | Owners
+    | Vets
+    | Error
 
 type alias AppModel =
     { page : Page
@@ -39,8 +48,8 @@ initialModel =
     }
 
 
-init : (AppModel, Cmd Msg)
-init =
+init : Navigation.Location -> (AppModel, Cmd Msg)
+init location =
     (initialModel, Cmd.none)
 
 
