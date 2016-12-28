@@ -1,10 +1,11 @@
 module Main exposing (..)
 
-import Html exposing (..)
+import Html exposing (Attribute, Html, a, body, br, button, div, h2, img, li, nav, p, span, text, ul)
 import Html.Attributes exposing (..)
-import Html.Events exposing (onClick)
+import Html.Events exposing (Options, onClick, onWithOptions)
+import Json.Decode as Decode
 import Owners exposing (..)
-import Navigation exposing (program)
+import Navigation exposing (Location, program)
 import Vets exposing(..)
 
 
@@ -13,17 +14,13 @@ import Vets exposing(..)
 
 main : Program Never AppModel Msg
 main =
-  Navigation.program locationToMsg
+  Navigation.program
+      UrlChange
       { init = init
       , view = view
       , update = update
       , subscriptions = subscriptions
       }
-
-locationToMsg : Navigation.Location -> Msg
-locationToMsg location =
-    MainMsg ToHome
-
 
 
 -- MODEL
@@ -56,16 +53,17 @@ init location =
 
 -- MESSAGES
 
+type Msg
+    = MainMsg NavMsg
+    | OwnersMsg Owners.Msg
+    | VetsMsg Vets.Msg
+    | UrlChange Location
+
 type NavMsg
     = ToHome
     | ToOwners
     | ToVets
     | ToError
-
-type Msg
-    = MainMsg NavMsg
-    | OwnersMsg Owners.Msg
-    | VetsMsg Vets.Msg
 
 
 
@@ -85,16 +83,20 @@ update : Msg -> AppModel -> ( AppModel, Cmd Msg )
 update msg model =
     case msg of
         MainMsg navMsg -> updateNavigation navMsg model
+
         OwnersMsg ownersMsg ->
             let
                 ( updatedOwnersModel, ownersCmd ) = Owners.update ownersMsg model.ownersModel
             in
                 ( { model | ownersModel = updatedOwnersModel }, Cmd.map OwnersMsg ownersCmd )
+
         VetsMsg vetsMsg ->
             let
                 ( updatedVetsModel, vetsCmd ) = Vets.update vetsMsg model.vetsModel
             in
                 ( { model | vetsModel = updatedVetsModel }, Cmd.map VetsMsg vetsCmd )
+
+        UrlChange location -> ( model, Cmd.none )
 
 
 
@@ -102,17 +104,23 @@ updateNavigation : NavMsg -> AppModel -> ( AppModel, Cmd Msg )
 updateNavigation navMsg model =
     case navMsg of
         ToHome ->
-            ({model | page = Home}, Cmd.none)
+            ({model | page = Home}, Navigation.newUrl "/elm/index.html")
+
         ToOwners ->
             let
                 ( updatedOwnersModel, ownersCmd ) = Owners.update Owners.NavigateTo model.ownersModel
+                cmdBatch = Cmd.batch [Navigation.newUrl "/elm/owners/find", Cmd.map OwnersMsg ownersCmd]
             in
-                ({model | page = Owners, ownersModel = updatedOwnersModel}
-                , Cmd.map OwnersMsg ownersCmd)
+                ({model | page = Owners, ownersModel = updatedOwnersModel}, cmdBatch)
+
         ToVets ->
-            ({model | page = Vets}, Cmd.map VetsMsg Vets.loadVets)
+            let
+                cmdBatch = Cmd.batch [Navigation.newUrl "/elm/vets.html", Cmd.map VetsMsg Vets.loadVets]
+            in
+                ({model | page = Vets}, cmdBatch)
+
         ToError ->
-            ({model | page = Error}, Cmd.none)
+            ({model | page = Error}, Navigation.newUrl "/elm/oups")
 
 
 
@@ -141,7 +149,7 @@ view model =
 
                 , div [class "navbar-collapse collapse", id "main-navbar"]
                     [ ul [class "nav navbar-nav navbar-right"]
-                        [ menuItem ToHome Home page (pathPrefix ++ "/") "home page" "home" "Home"
+                        [ menuItem ToHome Home page (pathPrefix ++ "/index.html") "home page" "home" "Home"
                         , menuItem ToOwners Owners page (pathPrefix ++ "/owners/find") "find owners" "search" "Find owners"
                         , menuItem ToVets Vets page (pathPrefix ++ "/vets.html") "veterinarians" "th-list" "Veterinarians"
                         , menuItem ToError Error page (pathPrefix ++ "/oups") "trigger a RuntimeError to see how it is handled" "warning-sign" "Error"
@@ -166,11 +174,11 @@ view model =
         ]
 
 menuItem : NavMsg -> Page -> Page -> String -> String -> String -> String -> Html Msg
-menuItem msg activePage currentPage path title_ glyph text_ =
+menuItem navMsg activePage currentPage path title_ glyph text_ =
     li [classList
             [("active", currentPage == activePage)]
         ]
-        [ a [title title_, onClick (MainMsg msg)]
+        [ a [ onLinkClick (MainMsg navMsg), href path, title title_]
             [ span [class ("glyphicon  glyphicon-" ++ glyph), attribute "aria-hidden" "true"] []
             , span [][text text_]
             ]
@@ -205,3 +213,13 @@ errorView imageRoot =
         , h2 [] [text "Something happened..."]
         , p [] [text "<Exception message>"]
         ]
+
+onLinkClick : Msg -> Attribute Msg
+onLinkClick msg =
+    onWithOptions "click" noBubbling (Decode.succeed msg)
+
+noBubbling : Options
+noBubbling =
+    { stopPropagation = True
+    , preventDefault = True
+    }
