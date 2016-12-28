@@ -26,16 +26,14 @@ main =
 type Page = Home | Owners | Vets | Error
 
 type alias AppModel =
-    { rootUrl : String
-    , page : Page
+    { page : Page
     , ownersModel : Owners.Model
     , vetsModel : Vets.Model
     }
 
 initialModel : AppModel
 initialModel =
-    { rootUrl = "file:///Users/thomas/Documents/SWDevelopment/elm/spring-petclinic-elm"
-    , page = Home
+    { page = Home
     , ownersModel = Owners.initialModel
     , vetsModel = Vets.initialModel
     }
@@ -115,16 +113,15 @@ view : AppModel -> Html Msg
 view model =
 
   let
-    rootUrl = model.rootUrl
-    classesUrl = model.rootUrl ++ "/target/classes"
-    imageRoot = classesUrl ++ "/static/resources/images"
+    pathPrefix = "/elm"
+    imagePathPrefix = "/resources/images"
     page = model.page
   in
     body []
         [ nav [class "navbar navbar-default"]
             [ div [class "container"]
                 [ div [class "navbar-header"]
-                    [ a [class "navbar-brand", (href (rootUrl ++ "index.html"))][]
+                    [ a [class "navbar-brand", (href (pathPrefix ++ "/index.html"))][]
                     , button [type_ "button", class "navbar-toggle", attribute "data-toggle" "collapse",  attribute "data-target" "#main-navbar"]
                         [ span [class "sr-only"][text "Toggle navigation"]
                         , span [class "icon-bar"] []
@@ -135,10 +132,10 @@ view model =
 
                 , div [class "navbar-collapse collapse", id "main-navbar"]
                     [ ul [class "nav navbar-nav navbar-right"]
-                        [ menuItem ToHome Home page (rootUrl ++ "/") "home page" "home" "Home"
-                        , menuItem ToOwners Owners page (rootUrl ++ "/owners/find") "find owners" "search" "Find owners"
-                        , menuItem ToVets Vets page (rootUrl ++ "/vets.html") "veterinarians" "th-list" "Veterinarians"
-                        , menuItem ToError Error page (rootUrl ++ "/oups") "trigger a RuntimeError to see how it is handled" "warning-sign" "Error"
+                        [ menuItem ToHome Home page (pathPrefix ++ "/") "home page" "home" "Home"
+                        , menuItem ToOwners Owners page (pathPrefix ++ "/owners/find") "find owners" "search" "Find owners"
+                        , menuItem ToVets Vets page (pathPrefix ++ "/vets.html") "veterinarians" "th-list" "Veterinarians"
+                        , menuItem ToError Error page (pathPrefix ++ "/oups") "trigger a RuntimeError to see how it is handled" "warning-sign" "Error"
                         ]
                     ]
                 ]
@@ -146,13 +143,13 @@ view model =
 
         , div [class "container-fluid"]
             [ div [class "container xd-container"]
-                [ contentView model imageRoot ]
+                [ contentView model imagePathPrefix ]
             , br [][]
             , br [][]
             , div [class "container"]
                 [ div [class "row"]
                     [ div [class "col-12 text-center"]
-                        [ img [src (imageRoot ++ "/spring-pivotal-logo.png"),alt "Sponsored by Pivotal"] []
+                        [ img [src (imagePathPrefix ++ "/spring-pivotal-logo.png"),alt "Sponsored by Pivotal"] []
                         ]
                     ]
                 ]
