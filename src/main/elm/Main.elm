@@ -182,17 +182,26 @@ contentView model imageRoot =
     case model.page of
         Owners -> Html.map OwnersMsg (Owners.view model.ownersModel)
         Vets -> Html.map VetsMsg (Vets.view model.vetsModel)
-        _ -> welcomeView model.page "Welcome" imageRoot
+        Home -> welcomeView imageRoot
+        Error -> errorView imageRoot
 
 
 
-welcomeView : Page -> String -> String -> Html Msg
-welcomeView page welcome imageRoot =
+welcomeView : String -> Html Msg
+welcomeView imageRoot =
     div []
-        [ h2 [] [text (welcome ++ " on page " ++ (toString page))]
+        [ h2 [] [text "Welcome"]
         , div [class "row"]
             [ div [class "col-md-12"]
                 [ img [class "img-responsive", src (imageRoot ++ "/pets.png")] []
                 ]
             ]
+        ]
+
+errorView : String -> Html Msg
+errorView imageRoot =
+    div []
+        [ img [src (imageRoot ++ "/pets.png")][]
+        , h2 [] [text "Something happened..."]
+        , p [] [text "<Exception message>"]
         ]
