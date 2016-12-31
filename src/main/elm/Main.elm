@@ -6,6 +6,7 @@ import Html.Events exposing (Options, onClick, onWithOptions)
 import Json.Decode as Decode
 import Owners exposing (..)
 import Navigation exposing (Location, program)
+import UrlParser exposing (Parser, oneOf, s, (</>))
 import Vets exposing(..)
 
 
@@ -49,6 +50,38 @@ init : Navigation.Location -> (AppModel, Cmd Msg)
 init location =
     (initialModel, Cmd.none)
 
+
+-- ROUTING
+routeParser : Parser (NavMsg -> a) a
+routeParser =
+    oneOf
+        [ UrlParser.map ToHome homeParser
+        , UrlParser.map ToOwners ownersParser
+        , UrlParser.map ToVets vetsParser
+        , UrlParser.map ToError errorParser
+        ]
+
+homeParser : Parser a a
+homeParser =
+    oneOf
+        [ s "elm"
+        , (s "elm") </> (s "index.html")
+        ]
+
+ownersParser : Parser a a
+ownersParser = (s "elm") </> (s "owners") </> (s "find")
+
+vetsParser : Parser a a
+vetsParser = (s "elm") </> (s "vets.html")
+
+errorParser : Parser a a
+errorParser = (s "elm") </> (s "oups")
+
+parse : Navigation.Location -> NavMsg
+parse location =
+    case (UrlParser.parsePath routeParser location) of
+        Nothing -> ToHome
+        Just aNavMsg -> aNavMsg
 
 
 -- MESSAGES
@@ -96,7 +129,8 @@ update msg model =
             in
                 ( { model | vetsModel = updatedVetsModel }, Cmd.map VetsMsg vetsCmd )
 
-        UrlChange location -> ( model, Cmd.none )
+        UrlChange location ->
+            updateNavigation (parse location) model
 
 
 
@@ -104,23 +138,31 @@ updateNavigation : NavMsg -> AppModel -> ( AppModel, Cmd Msg )
 updateNavigation navMsg model =
     case navMsg of
         ToHome ->
-            ({model | page = Home}, Navigation.newUrl "/elm/index.html")
+            if model.page /= Home
+            then ({model | page = Home}, Navigation.newUrl "/elm/index.html")
+            else (model, Cmd.none)
 
         ToOwners ->
             let
                 ( updatedOwnersModel, ownersCmd ) = Owners.update Owners.NavigateTo model.ownersModel
                 cmdBatch = Cmd.batch [Navigation.newUrl "/elm/owners/find", Cmd.map OwnersMsg ownersCmd]
             in
-                ({model | page = Owners, ownersModel = updatedOwnersModel}, cmdBatch)
+                if model.page /= Owners
+                then ({model | page = Owners, ownersModel = updatedOwnersModel}, cmdBatch)
+                else (model, Cmd.none)
 
         ToVets ->
             let
                 cmdBatch = Cmd.batch [Navigation.newUrl "/elm/vets.html", Cmd.map VetsMsg Vets.loadVets]
             in
-                ({model | page = Vets}, cmdBatch)
+                if model.page /= Vets
+                then ({model | page = Vets}, cmdBatch)
+                else (model, Cmd.none)
 
         ToError ->
-            ({model | page = Error}, Navigation.newUrl "/elm/oups")
+            if model.page /= Error
+            then ({model | page = Error}, Navigation.newUrl "/elm/oups")
+            else (model, Cmd.none)
 
 
 
