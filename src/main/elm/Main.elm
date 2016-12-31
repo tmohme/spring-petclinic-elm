@@ -74,7 +74,10 @@ update msg model =
                 ( { model | vetsModel = updatedVetsModel }, Cmd.map VetsMsg vetsCmd )
 
         UrlChange location ->
-            updateNavigation (parse location) model
+            let
+                x = Debug.log "UrlChange location" location
+            in
+                urlChanged (parse location) model
 
 
 
@@ -95,6 +98,7 @@ updateNavigation navMsg model =
                     let
                         ( updatedOwnersModel, ownersCmd ) = Owners.update Owners.Messages.ShowForm model.ownersModel
                         cmdBatch = Cmd.batch [pathFor FindOwnersForm |> Navigation.newUrl, Cmd.map OwnersMsg ownersCmd]
+                        x = Debug.log "Navigation.newUrl(updateNavigation)" cmdBatch
                     in
                         ({model | page = FindOwnersForm, ownersModel = updatedOwnersModel}, cmdBatch)
 
@@ -102,6 +106,7 @@ updateNavigation navMsg model =
                     let
                         ( updatedOwnersModel, ownersCmd ) = Owners.update Owners.Messages.ShowList model.ownersModel
                         cmdBatch = Cmd.batch [pathFor OwnersList |> Navigation.newUrl, Cmd.map OwnersMsg ownersCmd]
+                        x = Debug.log "Navigation.newUrl(updateNavigation)" cmdBatch
                     in
                         ({model | page = OwnersList, ownersModel = updatedOwnersModel}, cmdBatch)
 
@@ -109,7 +114,8 @@ updateNavigation navMsg model =
                     let
                         ( updatedOwnersModel, ownersCmd ) = Owners.update (Owners.Messages.ShowDetails ownerId) model.ownersModel
                         nextPage = OwnerDetails ownerId
-                        cmdBatch = Cmd.batch [pathFor nextPage |> Navigation.newUrl, Cmd.map OwnersMsg ownersCmd]
+                        cmdBatch = Cmd.batch [pathFor (OwnerDetails ownerId) |> Navigation.newUrl, Cmd.map OwnersMsg ownersCmd]
+                        x = Debug.log "Navigation.newUrl(updateNavigation)" cmdBatch
                     in
                         ({model | page = nextPage, ownersModel = updatedOwnersModel}, cmdBatch)
 
@@ -117,11 +123,55 @@ updateNavigation navMsg model =
                     let
                         vetsCmd = Cmd.map VetsMsg Vets.loadVets
                         cmdBatch = Cmd.batch [pathFor Vets |> Navigation.newUrl, vetsCmd]
+                        x = Debug.log "Navigation.newUrl(updateNavigation)" cmdBatch
                     in
                         ({model | page = Vets}, cmdBatch)
 
                 ToError ->
-                    ({model | page = Error}, pathFor Error |> Navigation.newUrl)
+                    let
+                        cmdBatch = Cmd.batch [pathFor Error |> Navigation.newUrl]
+                        x = Debug.log "Navigation.newUrl(updateNavigation)" cmdBatch
+                    in
+                        ({model | page = Error}, cmdBatch)
+
+
+urlChanged : NavMsg -> AppModel -> ( AppModel, Cmd Msg )
+urlChanged navMsg model =
+    let
+        currentPage = Debug.log ("urlChanged: " ++ (toString navMsg) ++ ", currently on page") model.page
+        targetPage = Messages.targetPage navMsg
+    in
+        if (currentPage == targetPage)
+        then (model, Cmd.none)
+        else
+            case navMsg of
+                ToHome ->
+                    ({model | page = Home}, Cmd.none)
+
+                ToFindOwners ->
+                    let
+                        ( updatedOwnersModel, ownersCmd ) = Owners.update Owners.Messages.ShowForm model.ownersModel
+                    in
+                        ({model | page = FindOwnersForm, ownersModel = updatedOwnersModel}, Cmd.map OwnersMsg ownersCmd)
+
+                ToOwnersList ->
+                    let
+                        ( updatedOwnersModel, ownersCmd ) = Owners.update Owners.Messages.ShowList model.ownersModel
+                    in
+                        ({model | page = OwnersList, ownersModel = updatedOwnersModel}, Cmd.map OwnersMsg ownersCmd)
+
+                ToOwnerDetails ownerId ->
+                    let
+                        ( updatedOwnersModel, ownersCmd ) = Owners.update (Owners.Messages.ShowDetails ownerId) model.ownersModel
+                        nextPage = OwnerDetails ownerId
+                    in
+                        ({model | page = nextPage, ownersModel = updatedOwnersModel}, Cmd.map OwnersMsg ownersCmd)
+
+                ToVets ->
+                    ({model | page = Vets}, Cmd.map VetsMsg Vets.loadVets)
+
+                ToError ->
+                    ({model | page = Error}, Cmd.none)
 
 
 
