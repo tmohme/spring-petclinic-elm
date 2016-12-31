@@ -1,4 +1,4 @@
-module Error exposing (..)
+module View.Error exposing (..)
 
 import Html exposing (..)
 import Html.Attributes exposing (..)

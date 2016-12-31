@@ -1,16 +1,16 @@
 module Main exposing (..)
 
-import Error
 import Html exposing (Attribute, Html, a, body, br, button, div, h2, img, li, nav, p, span, text, ul)
 import Html.Attributes exposing (..)
 import Html.Events exposing (Options, onClick, onWithOptions)
 import Json.Decode as Decode
-import Layout
 import Messages exposing (..)
 import Navigation
 import Owners
 import Routing exposing (..)
-import Welcome
+import View.Error
+import View.Layout
+import View.Welcome
 import Vets
 
 
@@ -111,13 +111,13 @@ updateNavigation navMsg model =
 -- VIEW
 view : AppModel -> Html Msg
 view model =
-    Layout.view model.page (contentView model)
+    View.Layout.view model.page (contentView model)
 
 contentView : AppModel -> String -> Html Msg
 contentView model imageRoot =
     case model.page of
         Owners -> Html.map OwnersMsg (Owners.view model.ownersModel)
         Vets -> Html.map VetsMsg (Vets.view model.vetsModel)
-        Home -> Welcome.view imageRoot
-        Error -> Error.view imageRoot
+        Home -> View.Welcome.view imageRoot
+        Error -> View.Error.view imageRoot
 

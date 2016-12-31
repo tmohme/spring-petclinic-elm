@@ -1,4 +1,4 @@
-module Layout exposing (..)
+module View.Layout exposing (..)
 
 import Html exposing (Attribute, Html, a, body, br, button, div, h2, img, li, nav, p, span, text, ul)
 import Html.Attributes exposing (..)
