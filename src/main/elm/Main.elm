@@ -1,5 +1,6 @@
 module Main exposing (..)
 
+import Error
 import Html exposing (Attribute, Html, a, body, br, button, div, h2, img, li, nav, p, span, text, ul)
 import Html.Attributes exposing (..)
 import Html.Events exposing (Options, onClick, onWithOptions)
@@ -9,6 +10,7 @@ import Messages exposing (..)
 import Navigation
 import Owners
 import Routing exposing (..)
+import Welcome
 import Vets
 
 
@@ -116,26 +118,6 @@ contentView model imageRoot =
     case model.page of
         Owners -> Html.map OwnersMsg (Owners.view model.ownersModel)
         Vets -> Html.map VetsMsg (Vets.view model.vetsModel)
-        Home -> welcomeView imageRoot
-        Error -> errorView imageRoot
+        Home -> Welcome.view imageRoot
+        Error -> Error.view imageRoot
 
-
-
-welcomeView : String -> Html Msg
-welcomeView imageRoot =
-    div []
-        [ h2 [] [text "Welcome"]
-        , div [class "row"]
-            [ div [class "col-md-12"]
-                [ img [class "img-responsive", src (imageRoot ++ "/pets.png")] []
-                ]
-            ]
-        ]
-
-errorView : String -> Html Msg
-errorView imageRoot =
-    div []
-        [ img [src (imageRoot ++ "/pets.png")][]
-        , h2 [] [text "Something happened..."]
-        , p [] [text "<Exception message>"]
-        ]
