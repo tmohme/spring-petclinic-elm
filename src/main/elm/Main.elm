@@ -82,58 +82,46 @@ updateNavigation : NavMsg -> AppModel -> ( AppModel, Cmd Msg )
 updateNavigation navMsg model =
     let
         currentPage = Debug.log ("updateNavigation: " ++ (toString navMsg) ++ ", currently on page") model.page
+        targetPage = Messages.targetPage navMsg
     in
-        case navMsg of
-            ToHome ->
-                if currentPage /= Home
-                then ({model | page = Home}, pathFor Home |> Navigation.newUrl)
-                else (model, Cmd.none)
+        if (currentPage == targetPage)
+        then (model, Cmd.none)
+        else
+            case navMsg of
+                ToHome ->
+                    ({model | page = Home}, pathFor Home |> Navigation.newUrl)
 
-            ToFindOwners ->
-                let
-                    ( updatedOwnersModel, ownersCmd ) = Owners.update Owners.Messages.ShowForm model.ownersModel
-                    cmdBatch = Cmd.batch [pathFor FindOwnersForm |> Navigation.newUrl, Cmd.map OwnersMsg ownersCmd]
-                in
-                    if currentPage /= FindOwnersForm
-                    then
-                        let
-                            x = Debug.log "switch to FindOwnersForm" cmdBatch
-                        in
-                            ({model | page = FindOwnersForm, ownersModel = updatedOwnersModel}, cmdBatch)
-                    else ({model | ownersModel = updatedOwnersModel}, Cmd.map OwnersMsg ownersCmd)
+                ToFindOwners ->
+                    let
+                        ( updatedOwnersModel, ownersCmd ) = Owners.update Owners.Messages.ShowForm model.ownersModel
+                        cmdBatch = Cmd.batch [pathFor FindOwnersForm |> Navigation.newUrl, Cmd.map OwnersMsg ownersCmd]
+                    in
+                        ({model | page = FindOwnersForm, ownersModel = updatedOwnersModel}, cmdBatch)
 
-            ToOwnersList ->
-                let
-                    ( updatedOwnersModel, ownersCmd ) = Owners.update Owners.Messages.ShowList model.ownersModel
-                    cmdBatch = Cmd.batch [pathFor OwnersList |> Navigation.newUrl, Cmd.map OwnersMsg ownersCmd]
-                in
-                    if currentPage /= OwnersList
-                    then ({model | page = OwnersList, ownersModel = updatedOwnersModel}, cmdBatch)
-                    else ({model | ownersModel = updatedOwnersModel}, Cmd.map OwnersMsg ownersCmd)
+                ToOwnersList ->
+                    let
+                        ( updatedOwnersModel, ownersCmd ) = Owners.update Owners.Messages.ShowList model.ownersModel
+                        cmdBatch = Cmd.batch [pathFor OwnersList |> Navigation.newUrl, Cmd.map OwnersMsg ownersCmd]
+                    in
+                        ({model | page = OwnersList, ownersModel = updatedOwnersModel}, cmdBatch)
 
-            ToOwnerDetails ownerId ->
-                let
-                    ( updatedOwnersModel, ownersCmd ) = Owners.update (Owners.Messages.ShowDetails ownerId) model.ownersModel
-                    nextPage = OwnerDetails ownerId
-                    cmdBatch = Cmd.batch [pathFor nextPage |> Navigation.newUrl, Cmd.map OwnersMsg ownersCmd]
-                in
-                    if currentPage /= nextPage
-                    then ({model | page = nextPage, ownersModel = updatedOwnersModel}, cmdBatch)
-                    else ({model | ownersModel = updatedOwnersModel}, Cmd.map OwnersMsg ownersCmd)
+                ToOwnerDetails ownerId ->
+                    let
+                        ( updatedOwnersModel, ownersCmd ) = Owners.update (Owners.Messages.ShowDetails ownerId) model.ownersModel
+                        nextPage = OwnerDetails ownerId
+                        cmdBatch = Cmd.batch [pathFor nextPage |> Navigation.newUrl, Cmd.map OwnersMsg ownersCmd]
+                    in
+                        ({model | page = nextPage, ownersModel = updatedOwnersModel}, cmdBatch)
 
-            ToVets ->
-                let
-                    vetsCmd = Cmd.map VetsMsg Vets.loadVets
-                    cmdBatch = Cmd.batch [pathFor Vets |> Navigation.newUrl, vetsCmd]
-                in
-                    if currentPage /= Vets
-                    then ({model | page = Vets}, cmdBatch)
-                    else (model, Cmd.batch [vetsCmd])
+                ToVets ->
+                    let
+                        vetsCmd = Cmd.map VetsMsg Vets.loadVets
+                        cmdBatch = Cmd.batch [pathFor Vets |> Navigation.newUrl, vetsCmd]
+                    in
+                        ({model | page = Vets}, cmdBatch)
 
-            ToError ->
-                if currentPage /= Error
-                then ({model | page = Error}, pathFor Error |> Navigation.newUrl)
-                else (model, Cmd.none)
+                ToError ->
+                    ({model | page = Error}, pathFor Error |> Navigation.newUrl)
 
 
 
