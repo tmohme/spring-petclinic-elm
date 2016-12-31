@@ -4,10 +4,11 @@ import Html exposing (Attribute, Html, a, body, br, button, div, h2, img, li, na
 import Html.Attributes exposing (..)
 import Html.Events exposing (Options, onClick, onWithOptions)
 import Json.Decode as Decode
-import Owners exposing (..)
+import Messages exposing (..)
 import Navigation exposing (Location, program)
+import Owners
 import UrlParser exposing (Parser, oneOf, s, (</>))
-import Vets exposing(..)
+import Vets
 
 
 
@@ -92,21 +93,6 @@ pathFor page =
         Owners -> "/owners/find"
         Vets -> "/vets.html"
         Error -> "/oups"
-
-
--- MESSAGES
-
-type Msg
-    = MainMsg NavMsg
-    | OwnersMsg Owners.Msg
-    | VetsMsg Vets.Msg
-    | UrlChange Location
-
-type NavMsg
-    = ToHome
-    | ToOwners
-    | ToVets
-    | ToError
 
 
 
