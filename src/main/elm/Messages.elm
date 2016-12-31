@@ -1,17 +1,18 @@
 module Messages exposing (..)
 
 import Navigation exposing (Location)
-import Owners exposing (Msg)
+import Owners.Messages exposing (Msg)
 import Vets exposing (Msg)
 
 type Msg
     = MainMsg NavMsg
-    | OwnersMsg Owners.Msg
+    | OwnersMsg Owners.Messages.Msg
     | VetsMsg Vets.Msg
     | UrlChange Location
 
 type NavMsg
     = ToHome
     | ToFindOwners
+    | ToOwnersList
     | ToVets
     | ToError

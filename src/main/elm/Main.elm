@@ -6,7 +6,8 @@ import Html.Events exposing (Options, onClick, onWithOptions)
 import Json.Decode as Decode
 import Messages exposing (..)
 import Navigation
-import Owners
+import Owners.Owners as Owners
+import Owners.Messages
 import Routing exposing (..)
 import View.Error
 import View.Layout
@@ -86,11 +87,20 @@ updateNavigation navMsg model =
 
         ToFindOwners ->
             let
-                ( updatedOwnersModel, ownersCmd ) = Owners.update Owners.NavigateTo model.ownersModel
+                ( updatedOwnersModel, ownersCmd ) = Owners.update Owners.Messages.ShowForm model.ownersModel
                 cmdBatch = Cmd.batch [pathFor FindOwners |> Navigation.newUrl, Cmd.map OwnersMsg ownersCmd]
             in
                 if model.page /= FindOwners
                 then ({model | page = FindOwners, ownersModel = updatedOwnersModel}, cmdBatch)
+                else (model, Cmd.none)
+
+        ToOwnersList ->
+            let
+                ( updatedOwnersModel, ownersCmd ) = Owners.update Owners.Messages.ShowList model.ownersModel
+                cmdBatch = Cmd.batch [pathFor OwnersList |> Navigation.newUrl, Cmd.map OwnersMsg ownersCmd]
+            in
+                if model.page /= OwnersList
+                then ({model | page = OwnersList, ownersModel = updatedOwnersModel}, cmdBatch)
                 else (model, Cmd.none)
 
         ToVets ->
@@ -116,7 +126,9 @@ view model =
 contentView : AppModel -> String -> Html Msg
 contentView model imageRoot =
     case model.page of
-        FindOwners -> Html.map OwnersMsg (Owners.view model.ownersModel)
+        FindOwners -> Html.map OwnersMsg Owners.viewForm
+        OwnersList -> Html.map OwnersMsg (Owners.viewList model.ownersModel)
+
         Vets -> Html.map VetsMsg (Vets.view model.vetsModel)
         Home -> View.Welcome.view imageRoot
         Error -> View.Error.view imageRoot

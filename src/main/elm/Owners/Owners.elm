@@ -1,4 +1,4 @@
-module Owners exposing(..)
+module Owners.Owners exposing(..)
 
 import Html exposing (..)
 import Html.Attributes exposing (class, maxlength, size, style, type_)
@@ -10,39 +10,16 @@ import Debug exposing (..)
 import HttpBuilder exposing (..)
 import Json.Decode exposing (..)
 import Json.Decode.Pipeline exposing (decode, required, optional)
+import Navigation
+import Owners.Messages exposing (..)
+import Owners.Types exposing (..)
+import Routing exposing (..)
 
 
 -- MODEL
 
-type Msg = NavigateTo
-         | FindOwner
-         | FoundOwners (Result Http.Error Owners)
-         | AddOwner
-         | LastName String
-
-type State = Form
-           | List
-
-type alias Owners = List Owner
-type alias Owner =
-    { id : Int
-    , firstName : String
-    , lastName : String
-    , address : String
-    , city : String
-    , telephone : String
-    , pets : List Pet
-    }
-
-type alias Pets = List Pet
-type alias Pet =
-    { id : Int
-    , name : String
-    }
-
 type alias Model =
     { lastName : String
-    , state : State
     , owners : Owners
     }
 
@@ -50,7 +27,6 @@ type alias Model =
 initialModel : Model
 initialModel =
     { lastName = ""
-    , state = Form
     , owners = []
     }
 
@@ -61,23 +37,17 @@ initialModel =
 update : Msg -> Model -> ( Model, Cmd Msg )
 update message model =
     case message of
-        NavigateTo -> ( initialModel, Cmd.none )
+        ShowForm -> ( initialModel, Cmd.none )
+        ShowList -> ( model, Cmd.none )
         LastName lastName -> ({model | lastName = lastName}, Cmd.none)
-        FindOwner -> ({ model | state = List }, findOwners model.lastName)
+        FindOwner -> ( model, findOwners model.lastName)
         FoundOwners (Err msg) -> ( model, Cmd.none )
-        FoundOwners (Ok owners) -> ( { model | owners = owners }, Cmd.none )
+        FoundOwners (Ok owners) -> ( { model | owners = owners }, pathFor OwnersList |> Navigation.newUrl )
         AddOwner -> (model, Cmd.none)
 
 
 
--- VIEW
-
-view : Model -> Html Msg
-view model =
-    case model.state of
-        Form -> viewForm
-        List -> viewList model
-
+-- VIEWs
 
 viewForm : Html Msg
 viewForm =
