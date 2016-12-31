@@ -1,13 +1,15 @@
 module Owners.Messages exposing (..)
 
 import Http
-import Owners.Types
+import Owners.Types exposing (Owners, Owner)
 
 
 type Msg = ShowForm
          | ShowList
-         | FindOwner
-         | FoundOwners (Result Http.Error Owners.Types.Owners)
+         | ShowDetails Int
+         | FindOwners
+         | FoundOwners (Result Http.Error Owners)
+         | FoundOwner (Result Http.Error Owner)
          | AddOwner
          | LastName String
 

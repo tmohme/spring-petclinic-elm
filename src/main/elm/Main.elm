@@ -88,10 +88,10 @@ updateNavigation navMsg model =
         ToFindOwners ->
             let
                 ( updatedOwnersModel, ownersCmd ) = Owners.update Owners.Messages.ShowForm model.ownersModel
-                cmdBatch = Cmd.batch [pathFor FindOwners |> Navigation.newUrl, Cmd.map OwnersMsg ownersCmd]
+                cmdBatch = Cmd.batch [pathFor FindOwnersForm |> Navigation.newUrl, Cmd.map OwnersMsg ownersCmd]
             in
-                if model.page /= FindOwners
-                then ({model | page = FindOwners, ownersModel = updatedOwnersModel}, cmdBatch)
+                if model.page /= FindOwnersForm
+                then ({model | page = FindOwnersForm, ownersModel = updatedOwnersModel}, cmdBatch)
                 else (model, Cmd.none)
 
         ToOwnersList ->
@@ -101,6 +101,16 @@ updateNavigation navMsg model =
             in
                 if model.page /= OwnersList
                 then ({model | page = OwnersList, ownersModel = updatedOwnersModel}, cmdBatch)
+                else (model, Cmd.none)
+
+        ToOwnerDetails ownerId ->
+            let
+                ( updatedOwnersModel, ownersCmd ) = Owners.update (Owners.Messages.ShowDetails ownerId) model.ownersModel
+                nextPage = OwnerDetails ownerId
+                cmdBatch = Cmd.batch [pathFor nextPage |> Navigation.newUrl, Cmd.map OwnersMsg ownersCmd]
+            in
+                if model.page /= nextPage
+                then ({model | page = nextPage, ownersModel = updatedOwnersModel}, cmdBatch)
                 else (model, Cmd.none)
 
         ToVets ->
@@ -126,9 +136,9 @@ view model =
 contentView : AppModel -> String -> Html Msg
 contentView model imageRoot =
     case model.page of
-        FindOwners -> Html.map OwnersMsg Owners.viewForm
+        FindOwnersForm -> Html.map OwnersMsg Owners.viewForm
         OwnersList -> Html.map OwnersMsg (Owners.viewList model.ownersModel)
-
+        OwnerDetails _ -> Html.map OwnersMsg (Owners.viewDetails model.ownersModel)
         Vets -> Html.map VetsMsg (Vets.view model.vetsModel)
         Home -> View.Welcome.view imageRoot
         Error -> View.Error.view imageRoot

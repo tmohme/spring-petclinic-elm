@@ -3,9 +3,9 @@ module View.Layout exposing (..)
 import Html exposing (Attribute, Html, a, body, br, button, div, h2, img, li, nav, p, span, text, ul)
 import Html.Attributes exposing (..)
 import Html.Events exposing (Options, onClick, onWithOptions)
-import Json.Decode as Decode
 import Messages exposing (..)
 import Routing exposing (..)
+import ViewHelper exposing (..)
 
 view : Page -> (String -> Html Msg) -> Html Msg
 view page contentView =
@@ -29,7 +29,7 @@ view page contentView =
                 , div [class "navbar-collapse collapse", id "main-navbar"]
                     [ ul [class "nav navbar-nav navbar-right"]
                         [ menuItem ToHome Home page "home page" "home" "Home"
-                        , menuItem ToFindOwners FindOwners page "find owners" "search" "Find owners"
+                        , menuItem ToFindOwners FindOwnersForm page "find owners" "search" "Find owners"
                         , menuItem ToVets Vets page "veterinarians" "th-list" "Veterinarians"
                         , menuItem ToError Error page "trigger a RuntimeError to see how it is handled" "warning-sign" "Error"
                         ]
@@ -61,14 +61,3 @@ menuItem navMsg targetPage currentPage title_ glyph text_ =
             , span [][text text_]
             ]
         ]
-
-
-onLinkClick : Msg -> Attribute Msg
-onLinkClick msg =
-    onWithOptions "click" noBubbling (Decode.succeed msg)
-
-noBubbling : Options
-noBubbling =
-    { stopPropagation = True
-    , preventDefault = True
-    }

@@ -2,14 +2,16 @@ module Routing exposing (..)
 
 import Messages exposing (..)
 import Navigation exposing (Location)
-import UrlParser exposing (Parser, oneOf, s, (</>))
+import Owners.Types exposing (Owner)
+import UrlParser exposing (Parser, int, oneOf, s, (</>))
 
 
 
 type Page
     = Home
-    | FindOwners
+    | FindOwnersForm
     | OwnersList
+    | OwnerDetails Int
     | Vets
     | Error
 
@@ -21,6 +23,7 @@ routeParser =
         [ UrlParser.map ToHome homeParser
         , UrlParser.map ToFindOwners findOwnersParser
         , UrlParser.map ToOwnersList ownersListParser
+        , UrlParser.map ToOwnerDetails ownerDetailsParser
         , UrlParser.map ToVets vetsParser
         , UrlParser.map ToError errorParser
         ]
@@ -41,6 +44,9 @@ homeParser =
 ownersListParser : Parser a a
 ownersListParser = (s "elm") </> (s "owners")
 
+ownerDetailsParser : Parser (Int -> a) a
+ownerDetailsParser = (s "elm") </> (s "owners") </> int
+
 vetsParser : Parser a a
 vetsParser = (s "elm") </> (s "vets.html")
 
@@ -60,7 +66,8 @@ pathFor page =
     "/elm" ++
     case page of
         Home -> "/index.html"
-        FindOwners -> "/owners/find"
+        FindOwnersForm -> "/owners/find"
         OwnersList -> "/owners"
+        OwnerDetails ownerId -> "/owners/" ++ (toString ownerId)
         Vets -> "/vets.html"
         Error -> "/oups"

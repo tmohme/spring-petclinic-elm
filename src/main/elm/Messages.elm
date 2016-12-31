@@ -2,6 +2,7 @@ module Messages exposing (..)
 
 import Navigation exposing (Location)
 import Owners.Messages exposing (Msg)
+import Owners.Types exposing (Owner)
 import Vets exposing (Msg)
 
 type Msg
@@ -14,5 +15,6 @@ type NavMsg
     = ToHome
     | ToFindOwners
     | ToOwnersList
+    | ToOwnerDetails Int
     | ToVets
     | ToError

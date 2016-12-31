@@ -161,4 +161,16 @@ class OwnerController {
         return mav;
     }
 
+
+    /**
+     * Custom handler for displaying an owner.
+     *
+     * @param ownerId the ID of the owner to display
+     * @return a ModelMap with the model attributes for the view
+     */
+    @RequestMapping(value = "/owners.json/{ownerId}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    public @ResponseBody Owner showOwnerAsJson(@PathVariable("ownerId") int ownerId) {
+        return this.owners.findById(ownerId);
+    }
+
 }

@@ -16,3 +16,18 @@ type alias Pet =
     { id : Int
     , name : String
     }
+
+fullName : Owner -> String
+fullName owner =
+    owner.firstName ++ " " ++ owner.lastName
+
+defaultOwner : Owner
+defaultOwner =
+    { id = -1
+    , firstName = ""
+    , lastName = ""
+    , address = ""
+    , city = ""
+    , telephone = ""
+    , pets = []
+    }
