@@ -145,33 +145,32 @@ urlChanged navMsg model =
         then (model, Cmd.none)
         else
             case navMsg of
-                ToHome ->
-                    ({model | page = Home}, Cmd.none)
+                ToHome -> {model | page = Home} ! []
 
                 ToFindOwners ->
                     let
                         ( updatedOwnersModel, ownersCmd ) = Owners.update Owners.Messages.ShowForm model.ownersModel
                     in
-                        ({model | page = FindOwnersForm, ownersModel = updatedOwnersModel}, Cmd.map OwnersMsg ownersCmd)
+                        {model | page = FindOwnersForm, ownersModel = updatedOwnersModel} ! [Cmd.map OwnersMsg ownersCmd]
 
                 ToOwnersList ->
                     let
                         ( updatedOwnersModel, ownersCmd ) = Owners.update Owners.Messages.ShowList model.ownersModel
                     in
-                        ({model | page = OwnersList, ownersModel = updatedOwnersModel}, Cmd.map OwnersMsg ownersCmd)
+                        {model | page = OwnersList, ownersModel = updatedOwnersModel} ! [Cmd.map OwnersMsg ownersCmd]
 
                 ToOwnerDetails ownerId ->
                     let
                         ( updatedOwnersModel, ownersCmd ) = Owners.update (Owners.Messages.ShowDetails ownerId) model.ownersModel
                         nextPage = OwnerDetails ownerId
                     in
-                        ({model | page = nextPage, ownersModel = updatedOwnersModel}, Cmd.map OwnersMsg ownersCmd)
+                        {model | page = nextPage, ownersModel = updatedOwnersModel} ! [Cmd.map OwnersMsg ownersCmd]
 
                 ToVets ->
-                    ({model | page = Vets}, Cmd.map VetsMsg Vets.loadVets)
+                    {model | page = Vets} ! [Cmd.map VetsMsg Vets.loadVets]
 
                 ToError ->
-                    ({model | page = Error}, Cmd.none)
+                    {model | page = Error} ! []
 
 
 
