@@ -1,4 +1,4 @@
-module Routing exposing (..)
+module Routing exposing (parse, pathFor)
 
 import Messages exposing (..)
 import Navigation exposing (Location)
