@@ -20,7 +20,7 @@ main =
       { init = init
       , view = view
       , update = update
-      , subscriptions = subscriptions
+      , subscriptions = \model -> Sub.none
       }
 
 
@@ -84,6 +84,16 @@ parse location =
         Just aNavMsg -> aNavMsg
 
 
+pathFor : Page -> String
+pathFor page =
+    "/elm" ++
+    case page of
+        Home -> "/index.html"
+        Owners -> "/owners/find"
+        Vets -> "/vets.html"
+        Error -> "/oups"
+
+
 -- MESSAGES
 
 type Msg
@@ -98,14 +108,6 @@ type NavMsg
     | ToVets
     | ToError
 
-
-
--- SUBSCRIPTIONS
-
-
-subscriptions : AppModel -> Sub Msg
-subscriptions model =
-    Sub.none
 
 
 
@@ -139,13 +141,13 @@ updateNavigation navMsg model =
     case navMsg of
         ToHome ->
             if model.page /= Home
-            then ({model | page = Home}, Navigation.newUrl "/elm/index.html")
+            then ({model | page = Home}, pathFor Home |> Navigation.newUrl)
             else (model, Cmd.none)
 
         ToOwners ->
             let
                 ( updatedOwnersModel, ownersCmd ) = Owners.update Owners.NavigateTo model.ownersModel
-                cmdBatch = Cmd.batch [Navigation.newUrl "/elm/owners/find", Cmd.map OwnersMsg ownersCmd]
+                cmdBatch = Cmd.batch [pathFor Owners |> Navigation.newUrl, Cmd.map OwnersMsg ownersCmd]
             in
                 if model.page /= Owners
                 then ({model | page = Owners, ownersModel = updatedOwnersModel}, cmdBatch)
@@ -153,7 +155,7 @@ updateNavigation navMsg model =
 
         ToVets ->
             let
-                cmdBatch = Cmd.batch [Navigation.newUrl "/elm/vets.html", Cmd.map VetsMsg Vets.loadVets]
+                cmdBatch = Cmd.batch [pathFor Vets |> Navigation.newUrl, Cmd.map VetsMsg Vets.loadVets]
             in
                 if model.page /= Vets
                 then ({model | page = Vets}, cmdBatch)
@@ -161,7 +163,7 @@ updateNavigation navMsg model =
 
         ToError ->
             if model.page /= Error
-            then ({model | page = Error}, Navigation.newUrl "/elm/oups")
+            then ({model | page = Error}, pathFor Error |> Navigation.newUrl)
             else (model, Cmd.none)
 
 
@@ -172,7 +174,6 @@ view : AppModel -> Html Msg
 view model =
 
   let
-    pathPrefix = "/elm"
     imagePathPrefix = "/resources/images"
     page = model.page
   in
@@ -180,7 +181,7 @@ view model =
         [ nav [class "navbar navbar-default"]
             [ div [class "container"]
                 [ div [class "navbar-header"]
-                    [ a [class "navbar-brand", (href (pathPrefix ++ "/index.html"))][]
+                    [ a [class "navbar-brand", (href (pathFor Home))][]
                     , button [type_ "button", class "navbar-toggle", attribute "data-toggle" "collapse",  attribute "data-target" "#main-navbar"]
                         [ span [class "sr-only"][text "Toggle navigation"]
                         , span [class "icon-bar"] []
@@ -191,10 +192,10 @@ view model =
 
                 , div [class "navbar-collapse collapse", id "main-navbar"]
                     [ ul [class "nav navbar-nav navbar-right"]
-                        [ menuItem ToHome Home page (pathPrefix ++ "/index.html") "home page" "home" "Home"
-                        , menuItem ToOwners Owners page (pathPrefix ++ "/owners/find") "find owners" "search" "Find owners"
-                        , menuItem ToVets Vets page (pathPrefix ++ "/vets.html") "veterinarians" "th-list" "Veterinarians"
-                        , menuItem ToError Error page (pathPrefix ++ "/oups") "trigger a RuntimeError to see how it is handled" "warning-sign" "Error"
+                        [ menuItem ToHome Home page "home page" "home" "Home"
+                        , menuItem ToOwners Owners page "find owners" "search" "Find owners"
+                        , menuItem ToVets Vets page "veterinarians" "th-list" "Veterinarians"
+                        , menuItem ToError Error page "trigger a RuntimeError to see how it is handled" "warning-sign" "Error"
                         ]
                     ]
                 ]
@@ -215,12 +216,12 @@ view model =
             ]
         ]
 
-menuItem : NavMsg -> Page -> Page -> String -> String -> String -> String -> Html Msg
-menuItem navMsg activePage currentPage path title_ glyph text_ =
+menuItem : NavMsg -> Page -> Page -> String -> String -> String -> Html Msg
+menuItem navMsg targetPage currentPage title_ glyph text_ =
     li [classList
-            [("active", currentPage == activePage)]
+            [("active", targetPage == currentPage)]
         ]
-        [ a [ onLinkClick (MainMsg navMsg), href path, title title_]
+        [ a [ onLinkClick (MainMsg navMsg), href (pathFor targetPage), title title_]
             [ span [class ("glyphicon  glyphicon-" ++ glyph), attribute "aria-hidden" "true"] []
             , span [][text text_]
             ]
