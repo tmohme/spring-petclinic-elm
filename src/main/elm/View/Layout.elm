@@ -4,6 +4,7 @@ import Html exposing (Attribute, Html, a, body, br, button, div, h2, img, li, na
 import Html.Attributes exposing (..)
 import Html.Events exposing (Options, onClick, onWithOptions)
 import Messages exposing (..)
+import Page exposing (..)
 import Routing exposing (..)
 import ViewHelper exposing (..)
 

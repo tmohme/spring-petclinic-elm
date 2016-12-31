@@ -3,18 +3,8 @@ module Routing exposing (..)
 import Messages exposing (..)
 import Navigation exposing (Location)
 import Owners.Types exposing (Owner)
+import Page exposing (..)
 import UrlParser exposing (Parser, int, oneOf, s, (</>))
-
-
-
-type Page
-    = Home
-    | FindOwnersForm
-    | OwnersList
-    | OwnerDetails Int
-    | Vets
-    | Error
-
 
 
 routeParser : Parser (NavMsg -> a) a
@@ -53,8 +43,8 @@ vetsParser = (s "elm") </> (s "vets.html")
 parse : Navigation.Location -> NavMsg
 parse location =
     let
-        l = Debug.log "location: " location
-        parsed = Debug.log "parsed: " (UrlParser.parsePath routeParser location)
+        l = Debug.log "Routing.parse: location" location
+        parsed = Debug.log "Routing.parse: parsed" (UrlParser.parsePath routeParser location)
     in
         case parsed of
             Nothing -> ToHome

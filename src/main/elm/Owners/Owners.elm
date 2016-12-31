@@ -14,6 +14,7 @@ import Messages
 import Navigation
 import Owners.Messages exposing (..)
 import Owners.Types exposing (..)
+import Page exposing (..)
 import Routing exposing (..)
 import ViewHelper exposing (..)
 
@@ -43,9 +44,10 @@ update message model =
     case message of
         ShowForm -> ( initialModel, Cmd.none )
         ShowList -> ( {model | owner = Nothing}, Cmd.none )
-        ShowDetails ownerId -> ( model, findOwner ownerId )
+        ShowDetails ownerId -> ( model, Cmd.none )
         LastName lastName -> ({model | lastName = lastName}, Cmd.none)
         FindOwners -> ( model, findOwners model.lastName)
+        FindOwner ownerId -> ( model, findOwner ownerId)
         FoundOwners (Err msg) -> ( model, Cmd.none )
         FoundOwners (Ok owners) -> ( { model | owners = owners }, pathFor OwnersList |> Navigation.newUrl )
         FoundOwner (Err msg) -> ( model, Cmd.none )
@@ -107,7 +109,7 @@ viewOwnerRows owners =
 viewOwnerRow : Owner -> Html Msg
 viewOwnerRow owner =
     tr []
-        [ a [ onLinkClick (ShowDetails owner.id)
+        [ a [ onLinkClick (FindOwner owner.id)
             , href (pathFor (OwnerDetails owner.id))]
             [text (fullName owner)]
         , td [] [ text owner.address]

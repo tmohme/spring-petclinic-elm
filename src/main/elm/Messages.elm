@@ -3,6 +3,7 @@ module Messages exposing (..)
 import Navigation exposing (Location)
 import Owners.Messages exposing (Msg)
 import Owners.Types exposing (Owner)
+import Page exposing (..)
 import Vets exposing (Msg)
 
 type Msg
@@ -18,3 +19,13 @@ type NavMsg
     | ToOwnerDetails Int
     | ToVets
     | ToError
+
+targetPage : NavMsg -> Page
+targetPage navMsg =
+    case navMsg of
+        ToHome -> Home
+        ToFindOwners -> FindOwnersForm
+        ToOwnerDetails ownerId -> OwnerDetails ownerId
+        ToOwnersList -> OwnersList
+        ToVets -> Vets
+        ToError -> Error

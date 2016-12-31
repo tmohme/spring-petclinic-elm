@@ -9,6 +9,7 @@ type Msg = ShowForm
          | ShowDetails Int
          | FindOwners
          | FoundOwners (Result Http.Error Owners)
+         | FindOwner Int
          | FoundOwner (Result Http.Error Owner)
          | AddOwner
          | LastName String
