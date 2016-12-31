@@ -29,7 +29,7 @@ view page contentView =
                 , div [class "navbar-collapse collapse", id "main-navbar"]
                     [ ul [class "nav navbar-nav navbar-right"]
                         [ menuItem ToHome Home page "home page" "home" "Home"
-                        , menuItem ToOwners Owners page "find owners" "search" "Find owners"
+                        , menuItem ToFindOwners FindOwners page "find owners" "search" "Find owners"
                         , menuItem ToVets Vets page "veterinarians" "th-list" "Veterinarians"
                         , menuItem ToError Error page "trigger a RuntimeError to see how it is handled" "warning-sign" "Error"
                         ]

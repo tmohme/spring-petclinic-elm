@@ -12,6 +12,6 @@ type Msg
 
 type NavMsg
     = ToHome
-    | ToOwners
+    | ToFindOwners
     | ToVets
     | ToError

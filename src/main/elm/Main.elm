@@ -84,13 +84,13 @@ updateNavigation navMsg model =
             then ({model | page = Home}, pathFor Home |> Navigation.newUrl)
             else (model, Cmd.none)
 
-        ToOwners ->
+        ToFindOwners ->
             let
                 ( updatedOwnersModel, ownersCmd ) = Owners.update Owners.NavigateTo model.ownersModel
-                cmdBatch = Cmd.batch [pathFor Owners |> Navigation.newUrl, Cmd.map OwnersMsg ownersCmd]
+                cmdBatch = Cmd.batch [pathFor FindOwners |> Navigation.newUrl, Cmd.map OwnersMsg ownersCmd]
             in
-                if model.page /= Owners
-                then ({model | page = Owners, ownersModel = updatedOwnersModel}, cmdBatch)
+                if model.page /= FindOwners
+                then ({model | page = FindOwners, ownersModel = updatedOwnersModel}, cmdBatch)
                 else (model, Cmd.none)
 
         ToVets ->
@@ -116,7 +116,7 @@ view model =
 contentView : AppModel -> String -> Html Msg
 contentView model imageRoot =
     case model.page of
-        Owners -> Html.map OwnersMsg (Owners.view model.ownersModel)
+        FindOwners -> Html.map OwnersMsg (Owners.view model.ownersModel)
         Vets -> Html.map VetsMsg (Vets.view model.vetsModel)
         Home -> View.Welcome.view imageRoot
         Error -> View.Error.view imageRoot

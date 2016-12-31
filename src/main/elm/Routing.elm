@@ -9,7 +9,7 @@ import UrlParser exposing (Parser, oneOf, s, (</>))
 
 type Page
     = Home
-    | Owners
+    | FindOwners
     | Vets
     | Error
 
@@ -19,7 +19,7 @@ routeParser : Parser (NavMsg -> a) a
 routeParser =
     oneOf
         [ UrlParser.map ToHome homeParser
-        , UrlParser.map ToOwners ownersParser
+        , UrlParser.map ToFindOwners ownersParser
         , UrlParser.map ToVets vetsParser
         , UrlParser.map ToError errorParser
         ]
@@ -52,6 +52,6 @@ pathFor page =
     "/elm" ++
     case page of
         Home -> "/index.html"
-        Owners -> "/owners/find"
+        FindOwners -> "/owners/find"
         Vets -> "/vets.html"
         Error -> "/oups"
